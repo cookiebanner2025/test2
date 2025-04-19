@@ -41,26 +41,26 @@ const cookieDatabase = {
     '_gid': { category: 'analytics', duration: '24 hours', description: 'Google Analytics user distinction' },
     '_gat': { category: 'analytics', duration: '1 minute', description: 'Google Analytics throttle rate' },
     '_ga_': { category: 'analytics', duration: '2 years', description: 'GA4 session state' },
-    
+
     // Facebook Pixel
     '_fbp': { category: 'advertising', duration: '3 months', description: 'Facebook conversion tracking' },
     'fr': { category: 'advertising', duration: '3 months', description: 'Facebook targeted ads' },
-    
+
     // Functional cookies
     'wordpress_': { category: 'functional', duration: 'Session', description: 'WordPress authentication' },
     'wp-settings': { category: 'functional', duration: '1 year', description: 'WordPress preferences' },
     'PHPSESSID': { category: 'functional', duration: 'Session', description: 'PHP session' },
     'cookie_consent': { category: 'functional', duration: '1 year', description: 'Stores cookie consent preferences' },
-    
+
     // WooCommerce cookies
     'woocommerce_items_in_cart': { category: 'functional', duration: 'Session', description: 'WooCommerce cart items tracking' },
     'woocommerce_cart_hash': { category: 'functional', duration: 'Session', description: 'WooCommerce cart hash' },
-    
+
     // Advertising cookies
     '_gcl_au': { category: 'advertising', duration: '3 months', description: 'Google Ads conversion' },
     'IDE': { category: 'advertising', duration: '1 year', description: 'Google DoubleClick' },
     'NID': { category: 'advertising', duration: '6 months', description: 'Google user tracking' },
-    
+
     // Other common cookies
     'gclid_tracker': { category: 'advertising', duration: 'Session', description: 'Tracks Google Click ID for conversions' },
     'tk_ai': { category: 'analytics', duration: 'Session', description: 'Jetpack/Tumblr analytics' },
@@ -261,14 +261,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         injectConsentHTML(detectedCookies, language);
         initializeCookieConsent(detectedCookies, language);
-        
+
         if (getCookie('cookie_consent')) {
             showFloatingButton();
         }
-        
+
         // Track marketing parameters
         trackMarketingParameters();
-        
+
         // Enhanced periodic cookie scan with validation
         setInterval(() => {
             const newCookies = scanAndCategorizeCookies();
@@ -297,27 +297,27 @@ function autoCategorizeCookies(uncategorizedCookies) {
 // Function to determine cookie category based on name patterns
 function determineCookieCategory(cookieName) {
     const lowerName = cookieName.toLowerCase();
-    
+
     // Analytics patterns
     if (/_ga|_gid|_gat|analytics|stats|measure|track|tk_ai/.test(lowerName)) {
         return 'analytics';
     }
-    
+
     // Advertising patterns
     if (/_gcl|_fbp|fr|ad|ads|tracking|marketing|doubleclick|gclid/.test(lowerName)) {
         return 'advertising';
     }
-    
+
     // Functional patterns
     if (/sess|token|auth|login|user|pref|settings|cart|checkout|hash|items/.test(lowerName)) {
         return 'functional';
     }
-    
+
     // Performance patterns
     if (/perf|speed|optimize|cdn|cache/.test(lowerName)) {
         return 'performance';
     }
-    
+
     return null;
 }
 
@@ -335,9 +335,9 @@ function scanAndCategorizeCookies() {
     cookies.forEach(cookie => {
         const [name, value] = cookie.trim().split('=');
         if (!name) return;
-        
+
         let categorized = false;
-        
+
         // Check against known cookie patterns
         for (const pattern in cookieDatabase) {
             if (name.startsWith(pattern) || name === pattern) {
@@ -352,7 +352,7 @@ function scanAndCategorizeCookies() {
                 break;
             }
         }
-        
+
         if (!categorized && name !== 'cookie_consent') {
             result.uncategorized.push({
                 name: name,
@@ -362,20 +362,20 @@ function scanAndCategorizeCookies() {
             });
         }
     });
-    
+
     return result;
 }
 
 // Enhanced getCookieDuration function
 function getCookieDuration(name) {
-    const cookieMatch = document.cookie.match(new RegExp(`${name}=[^;]+(;|$)`));
+    const cookieMatch = document.cookie.match(new RegExp(`<span class="math-inline">\{name\}\=\[^;\]\+\(;\|</span>)`));
     if (!cookieMatch) return "Session";
-    
+
     const expiresMatch = document.cookie.match(new RegExp(`${name}=[^;]+; expires=([^;]+)`));
     if (expiresMatch && expiresMatch[1]) {
         const expiryDate = new Date(expiresMatch[1]);
-        return expiryDate > new Date() ? 
-            `Expires ${expiryDate.toLocaleDateString()}` : 
+        return expiryDate > new Date() ?
+            `Expires ${expiryDate.toLocaleDateString()}` :
             "Expired";
     }
     return "Session";
@@ -408,7 +408,18 @@ function detectUserLanguageWithVPN() {
                 }
             }
         }
-        
+
+        // Fallback to browser language with VPN consideration
+        const browserLang = (navigator.language || 'en').split('-')[0];
+        resolve(browserLang in translations ? browserLang : 'en');
+    });
+  resolve(countryToLang[langData.country]);
+                        return;
+                    }
+                }
+            }
+        }
+
         // Fallback to browser language with VPN consideration
         const browserLang = (navigator.language || 'en').split('-')[0];
         resolve(browserLang in translations ? browserLang : 'en');
@@ -418,14 +429,14 @@ function detectUserLanguageWithVPN() {
 function trackMarketingParameters() {
     const params = new URLSearchParams(window.location.search);
     const marketingData = {};
-    
+
     // Check for common marketing parameters
     if (params.has('gclid')) marketingData.gclid = params.get('gclid');
     if (params.has('fbclid')) marketingData.fbclid = params.get('fbclid');
     if (params.has('utm_source')) marketingData.utm_source = params.get('utm_source');
     if (params.has('utm_medium')) marketingData.utm_medium = params.get('utm_medium');
     if (params.has('utm_campaign')) marketingData.utm_campaign = params.get('utm_campaign');
-    
+
     if (Object.keys(marketingData).length > 0) {
         window.dataLayer.push({
             'event': 'marketingParameters',
@@ -436,56 +447,53 @@ function trackMarketingParameters() {
 
 function injectConsentHTML(detectedCookies, language = 'en') {
     const lang = translations[language] || translations.en;
-    
+
     // Generate cookie tables for each category
     const generateCategorySection = (category) => {
         const cookies = detectedCookies[category];
         const categoryKey = category === 'functional' ? 'essential' : category;
         const isEssential = category === 'functional';
-        
+
         return `
         <div class="cookie-category">
             <div class="toggle-container">
-                <h3>${lang[categoryKey]}</h3>
-                <label class="toggle-switch">
-                    <input type="checkbox" data-category="${category}" ${isEssential ? 'checked disabled' : ''}>
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            <p>${lang[`${categoryKey}Desc`]}</p>
+                <h3><span class="math-inline">\{lang\[categoryKey\]\}</h3\>
+<label class\="toggle\-switch"\>
+<input type\="checkbox" data\-category\="</span>{category}" <span class="math-inline">\{isEssential ? 'checked disabled' \: ''\}\>
+<span class\="toggle\-slider"\></span\>
+</label\>
+</div\>
+<p\></span>{lang[`${categoryKey}Desc`]}</p>
             <div class="cookie-details-container">
                 <div class="cookie-details-header">
                     <span>Cookie Details</span>
                     <span class="toggle-details">+</span>
                 </div>
                 <div class="cookie-details-content" style="display: none;">
-                    ${cookies.length > 0 ? 
-                        generateCookieTable(cookies) : 
+                    ${cookies.length > 0 ?
+                        generateCookieTable(cookies) :
                         `<p class="no-cookies-message">No cookies in this category detected.</p>`}
                 </div>
             </div>
         </div>`;
     };
-    
+
     const html = `
-    <!-- Main Consent Banner -->
     <div id="cookieConsentBanner" class="cookie-consent-banner">
         <div class="cookie-consent-container">
             <div class="cookie-consent-content">
-                <h2>${lang.title}</h2>
-                <p>${lang.description}</p>
-                <a href="/privacy-policy/" class="privacy-policy-link">${lang.privacy}</a>
-            </div>
-            <div class="cookie-consent-buttons">
-            <button id="acceptAllBtn" class="cookie-btn accept-btn">${lang.accept}</button>
-                <button id="adjustConsentBtn" class="cookie-btn adjust-btn">${lang.customize}</button>
-                <button id="rejectAllBtn" class="cookie-btn reject-btn">${lang.reject}</button>
-                
+                <h2><span class="math-inline">\{lang\.title\}</h2\>
+<p\></span>{lang.description}</p>
+                <a href="/privacy-policy/" class="privacy-policy-link"><span class="math-inline">\{lang\.privacy\}</a\>
+</div\>
+<div class\="cookie\-consent\-buttons"\>
+<button id\="adjustConsentBtn" class\="cookie\-btn adjust\-btn"\></span>{lang.customize}</button>
+                <button id="rejectAllBtn" class="cookie-btn reject-btn"><span class="math-inline">\{lang\.reject\}</button\>
+<button id\="acceptAllBtn" class\="cookie\-btn accept\-btn"\></span>{lang.accept}</button>
             </div>
         </div>
     </div>
 
-    <!-- Settings Modal -->
     <div id="cookieSettingsModal" class="cookie-settings-modal">
         <div class="cookie-settings-content">
             <div class="cookie-settings-header">
@@ -497,23 +505,22 @@ function injectConsentHTML(detectedCookies, language = 'en') {
                 ${generateCategorySection('analytics')}
                 ${generateCategorySection('performance')}
                 ${generateCategorySection('advertising')}
-                ${detectedCookies.uncategorized.length > 0 ? generateCategorySection('uncategorized') : ''}
-            </div>
-            <div class="cookie-settings-footer">
-                <button id="rejectAllSettingsBtn" class="cookie-btn reject-btn">${lang.reject}</button>
-                <button id="saveSettingsBtn" class="cookie-btn save-btn">${lang.save}</button>
-                <button id="acceptAllSettingsBtn" class="cookie-btn accept-btn">${lang.accept}</button>
+                <span class="math-inline">\{detectedCookies\.uncategorized\.length \> 0 ? generateCategorySection\('uncategorized'\) \: ''\}
+</div\>
+<div class\="cookie\-settings\-footer"\>
+<button id\="rejectAllSettingsBtn" class\="cookie\-btn reject\-btn"\></span>{lang.reject}</button>
+                <button id="saveSettingsBtn" class="cookie-btn save-btn"><span class="math-inline">\{lang\.save\}</button\>
+<button id\="acceptAllSettingsBtn" class\="cookie\-btn accept\-btn"\></span>{lang.accept}</button>
             </div>
         </div>
     </div>
 
-    <!-- Floating Settings Button -->
     <div id="cookieFloatingButton" class="cookie-settings-button" title="${lang.title}">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
             <path d="M257.5 27.6c-.8-5.4-4.9-9.8-10.3-10.6c-22.1-3.1-44.6 .9-64.4 11.4l-74 39.5C89.1 78.4 73.2 94.9 63.4 115L26.7 190.6c-9.8 20.1-13 42.9-9.1 64.9l14.5 82.8c3.9 22.1 14.6 42.3 30.7 57.9l60.3 58.4c16.1 15.6 36.6 25.6 58.7 28.7l83 11.7c22.1 3.1 44.6-.9-64.4-11.4l74-39.5c19.7-10.5 35.6-27 45.4-47.2l36.7-75.5c9.8-20.1 13-42.9 9.1-64.9c-.9-5.7-5.9-9.9-11.6-9.9c-51.5 0-101.5-14.7-144.9-42.3l-61.2-42.4c-10.1-7-21.8-11.1-33.9-11.9c-12.1-.9-24.1 1.6-34.9 7.2l-61.2 35.1c-6.4 3.7-14.6 1.9-19.3-4.1s-4.7-13.7 1.1-18.4l61.2-42.4c43.4-30.1 97.1-46.4 151.8-46.4c5.7 0 10.7-4.1 11.6-9.8zM133.4 303.6c-25.9 0-46.9-21-46.9-46.9s21-46.9 46.9-46.9s46.9 21 46.9 46.9s-21 46.9-46.9 46.9zm116.1-90.3c-26.5 0-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48s-21.5-48-48-48zm92.3 99.7c-26.5 0-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48s-21.5-48-48-48z"/>
         </svg>
     </div>
-    
+
     <style>
     /* Main Banner Styles */
     .cookie-consent-banner {
@@ -767,6 +774,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         border-radius: 34px;
     }
 
+    .toggle-slider
     .toggle-slider:before {
         position: absolute;
         content: "";
@@ -943,548 +951,288 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         transform: translateY(-2px);
         box-shadow: 0 5px 10px rgba(0,0,0,0.15);
     }
+    </style>
+    `;
 
-    /* Responsive Styles */
-    @media (max-width: 768px) {
-        .cookie-consent-banner {
-            padding: 20px;
-        }
-        
-        .cookie-consent-container {
-            flex-direction: column;
-        }
-        
-        .cookie-consent-buttons {
-            width: 100%;
-            margin-top: 15px;
-        }
-        
-        .cookie-btn {
-            width: 100%;
-        }
-        
-        .cookie-settings-content {
-            margin: 20px;
-            width: calc(100% - 40px);
-        }
-        
-        .cookie-settings-footer {
-            flex-direction: column;
-        }
-        
-        .cookie-settings-footer .cookie-btn {
-            width: 100%;
-        }
-        
-        .cookie-settings-button {
-            bottom: 20px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .cookie-consent-banner {
-            padding: 15px;
-        }
-        
-        .cookie-consent-content h2 {
-            font-size: 1.2rem;
-        }
-        
-        .cookie-consent-content p {
-            font-size: 0.9rem;
-        }
-        
-        .cookie-btn {
-            padding: 10px 15px;
-            font-size: 0.9rem;
-        }
-        
-        .cookie-settings-button {
-            bottom: 15px;
-            left: 15px;
-            width: 45px;
-            height: 45px;
-        }
-        
-        .cookie-settings-button svg {
-            width: 22px;
-            height: 22px;
-        }
-        
-        .cookie-settings-header h2 {
-            font-size: 1.3rem;
-        }
-        
-        .toggle-container h3 {
-            font-size: 1.1rem;
-        }
-    }
-    </style>`;
-    
     document.body.insertAdjacentHTML('beforeend', html);
 }
 
+function generateCookieTable(cookies) {
+    let tableHTML = `<table class="cookie-details-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Duration</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+    cookies.forEach(cookie => {
+        tableHTML += `
+                            <tr>
+                                <td><code>${cookie.name}</code></td>
+                                <td>${cookie.duration}</td>
+                                <td>${cookie.description}</td>
+                            </tr>`;
+    });
+    tableHTML += `</tbody></table>`;
+    return tableHTML;
+}
+
 function initializeCookieConsent(detectedCookies, language) {
-    const consentGiven = getCookie('cookie_consent');
-    
-    if (!consentGiven) {
-        showCookieBanner();
+    const banner = document.getElementById('cookieConsentBanner');
+    const modal = document.getElementById('cookieSettingsModal');
+    const adjustBtn = document.getElementById('adjustConsentBtn');
+    const rejectAllBtn = document.getElementById('rejectAllBtn');
+    const acceptAllBtn = document.getElementById('acceptAllBtn');
+    const closeModal = modal.querySelector('.close-modal');
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    const rejectAllSettingsBtn = document.getElementById('rejectAllSettingsBtn');
+    const acceptAllSettingsBtn = document.getElementById('acceptAllSettingsBtn');
+    const floatingButton = document.getElementById('cookieFloatingButton');
+    const cookieCategoryToggles = modal.querySelectorAll('.cookie-category input[type="checkbox"]');
+    const cookieDetailsToggles = modal.querySelectorAll('.cookie-details-header .toggle-details');
+
+    let consent = getCookie('cookie_consent');
+    if (!consent) {
+        banner.classList.add('show');
     } else {
-        const consentData = JSON.parse(consentGiven);
-        updateConsentMode(consentData);
-        loadCookiesAccordingToConsent(consentData);
+        consent = JSON.parse(consent);
+        applyConsent(consent);
         showFloatingButton();
     }
-    
-    // Set up event listeners
-    setupEventListeners();
-    
-    // Setup cookie details toggles
-    document.querySelectorAll('.cookie-details-header').forEach(header => {
-        header.addEventListener('click', function() {
-            const content = this.nextElementSibling;
-            const toggle = this.querySelector('.toggle-details');
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                toggle.textContent = '−';
-            } else {
-                content.style.display = 'none';
-                toggle.textContent = '+';
+
+    adjustBtn.addEventListener('click', () => {
+        banner.classList.remove('show');
+        modal.classList.add('show');
+    });
+
+    rejectAllBtn.addEventListener('click', () => {
+        updateConsent({ functional: true, analytics: false, performance: false, advertising: false, other: false });
+        banner.classList.remove('show');
+        showFloatingButton();
+    });
+
+    acceptAllBtn.addEventListener('click', () => {
+        updateConsent({ functional: true, analytics: true, performance: true, advertising: true, other: true });
+        banner.classList.remove('show');
+        showFloatingButton();
+    });
+
+    closeModal.addEventListener('click', () => {
+        modal.classList.remove('show');
+    });
+
+    saveSettingsBtn.addEventListener('click', () => {
+        const newConsent = { functional: true }; // Essential cookies are always true
+        cookieCategoryToggles.forEach(toggle => {
+            newConsent[toggle.dataset.category] = toggle.checked;
+        });
+        updateConsent(newConsent);
+        modal.classList.remove('show');
+        showFloatingButton();
+    });
+
+    rejectAllSettingsBtn.addEventListener('click', () => {
+        cookieCategoryToggles.forEach(toggle => {
+            if (toggle.dataset.category !== 'functional') {
+                toggle.checked = false;
             }
         });
     });
-}
 
-function setupEventListeners() {
-    document.getElementById('acceptAllBtn').addEventListener('click', function() {
-        acceptAllCookies();
-        hideCookieBanner();
-        showFloatingButton();
+    acceptAllSettingsBtn.addEventListener('click', () => {
+        cookieCategoryToggles.forEach(toggle => {
+            toggle.checked = true;
+        });
     });
-    
-    document.getElementById('rejectAllBtn').addEventListener('click', function() {
-        rejectAllCookies();
-        hideCookieBanner();
-        showFloatingButton();
-    });
-    
-    document.getElementById('adjustConsentBtn').addEventListener('click', function() {
-        showCookieSettings();
-        hideCookieBanner();
-    });
-    
-    document.getElementById('acceptAllSettingsBtn').addEventListener('click', function() {
-        acceptAllCookies();
-        hideCookieSettings();
-        showFloatingButton();
-    });
-    
-    document.getElementById('rejectAllSettingsBtn').addEventListener('click', function() {
-        rejectAllCookies();
-        hideCookieSettings();
-        showFloatingButton();
-    });
-    
-    document.getElementById('saveSettingsBtn').addEventListener('click', function() {
-        saveCustomSettings();
-        hideCookieSettings();
-        showFloatingButton();
-    });
-    
-    document.querySelector('.close-modal').addEventListener('click', function() {
-        hideCookieSettings();
-        if (!getCookie('cookie_consent')) {
-            showCookieBanner();
-        }
-    });
-    
-    document.getElementById('cookieFloatingButton').addEventListener('click', function() {
-        if (!document.getElementById('cookieConsentBanner').classList.contains('show')) {
-            showCookieBanner();
-        } else {
-            hideCookieBanner();
-        }
-    });
-}
 
-function updateCookieTables(detectedCookies) {
-    const categories = ['functional', 'analytics', 'performance', 'advertising', 'uncategorized'];
-    
-    categories.forEach(category => {
-        const container = document.querySelector(`input[data-category="${category}"]`)?.closest('.cookie-category');
-        if (container) {
-            const content = container.querySelector('.cookie-details-content');
-            if (content) {
-                content.innerHTML = detectedCookies[category].length > 0 ? 
-                    generateCookieTable(detectedCookies[category]) : 
-                    '<p class="no-cookies-message">No cookies in this category detected.</p>';
-            }
-        }
-    });
-}
-
-function generateCookieTable(cookies) {
-    return `
-    <table class="cookie-details-table">
-        <thead>
-            <tr>
-                <th>Cookie Name</th>
-                <th>Value</th>
-                <th>Duration</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${cookies.map(cookie => `
-            <tr>
-                <td><code>${cookie.name}</code></td>
-                <td><code>${cookie.value.substring(0, 20)}${cookie.value.length > 20 ? '...' : ''}</code></td>
-                <td>${cookie.duration}</td>
-                <td>${cookie.description}</td>
-            </tr>`).join('')}
-        </tbody>
-    </table>`;
-}
-
-function showFloatingButton() {
-    const button = document.getElementById('cookieFloatingButton');
-    button.style.display = 'flex';
-    setTimeout(() => {
-        button.classList.add('show');
-    }, 100);
-}
-
-function hideFloatingButton() {
-    const button = document.getElementById('cookieFloatingButton');
-    button.classList.remove('show');
-    setTimeout(() => {
-        button.style.display = 'none';
-    }, 300);
-}
-
-function showCookieBanner() {
-    const banner = document.getElementById('cookieConsentBanner');
-    banner.style.display = 'block';
-    setTimeout(() => {
-        banner.classList.add('show');
-    }, 10);
-}
-
-function hideCookieBanner() {
-    const banner = document.getElementById('cookieConsentBanner');
-    banner.classList.remove('show');
-    setTimeout(() => {
-        banner.style.display = 'none';
-    }, 400);
-}
-
-function showCookieSettings() {
-    const modal = document.getElementById('cookieSettingsModal');
-    modal.style.display = 'block';
-    setTimeout(() => {
+    floatingButton.addEventListener('click', () => {
         modal.classList.add('show');
-    }, 10);
-    hideCookieBanner();
-}
-
-function hideCookieSettings() {
-    const modal = document.getElementById('cookieSettingsModal');
-    modal.classList.remove('show');
-    setTimeout(() => {
-        modal.style.display = 'none';
-    }, 300);
-}
-
-function updateConsentMode(consentData) {
-    const consentStates = {
-        'ad_storage': consentData.categories.advertising ? 'granted' : 'denied',
-        'analytics_storage': consentData.categories.analytics ? 'granted' : 'denied',
-        'ad_user_data': consentData.categories.advertising ? 'granted' : 'denied',
-        'ad_personalization': consentData.categories.advertising ? 'granted' : 'denied',
-        'personalization_storage': consentData.categories.performance ? 'granted' : 'denied',
-        'functionality_storage': consentData.categories.functional ? 'granted' : 'denied',
-        'security_storage': 'granted'
-    };
-
-    // Determine GCS signal
-    let gcsSignal = 'G100'; // Default to denied
-    
-    if (consentData.status === 'accepted') {
-        gcsSignal = 'G111';
-    } else if (consentData.status === 'custom') {
-        gcsSignal = 'G101';
-    }
-
-    // Update consent mode immediately
-    gtag('consent', 'update', consentStates);
-    
-    // Push detailed consent data to dataLayer
-    window.dataLayer.push({
-        'event': 'cookie_consent_update',
-        'consent_mode': consentStates,
-        'gcs': gcsSignal,
-        'consent_status': consentData.status,
-        'consent_categories': consentData.categories,
-        'timestamp': new Date().toISOString(),
-        'consent_version': '3.0',
-        'consent_scope': 'global',
-        'debug_info': {
-            'cookies_found': scanAndCategorizeCookies(),
-            'user_agent': navigator.userAgent,
-            'language': navigator.language
-        }
+        hideFloatingButton();
     });
 
-    console.log('Consent Mode Updated:', {
-        states: consentStates,
-        gcsSignal: gcsSignal,
-        categories: consentData.categories
+    cookieDetailsToggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const content = this.closest('.cookie-details-container').querySelector('.cookie-details-content');
+            const isVisible = content.style.display === 'block';
+            content.style.display = isVisible ? 'none' : 'block';
+            this.textContent = isVisible ? '+' : '-';
+        });
     });
-}
-
-function acceptAllCookies() {
-    const consentData = {
-        status: 'accepted',
-        gcs: 'G111',
-        categories: {
-            functional: true,
-            analytics: true,
-            performance: true,
-            advertising: true,
-            uncategorized: true
-        },
-        timestamp: new Date().getTime()
-    };
-    
-    setCookie('cookie_consent', JSON.stringify(consentData), 365);
-    updateConsentMode(consentData);
-    loadCookiesAccordingToConsent(consentData);
-}
-
-function rejectAllCookies() {
-    const consentData = {
-        status: 'rejected',
-        gcs: 'G100',
-        categories: {
-            functional: true,  // Essential cookies always enabled
-            analytics: false,
-            performance: false,
-            advertising: false,
-            uncategorized: false
-        },
-        timestamp: new Date().getTime()
-    };
-    
-    setCookie('cookie_consent', JSON.stringify(consentData), 365);
-    updateConsentMode(consentData);
-    clearNonEssentialCookies();
-}
-
-function clearNonEssentialCookies() {
-    const cookies = document.cookie.split(';');
-    cookies.forEach(cookie => {
-        const [nameValue] = cookie.trim().split('=');
-        const name = nameValue.trim();
-        let isEssential = false;
-        
-        // Check if cookie is essential
-        for (const pattern in cookieDatabase) {
-            if (name.startsWith(pattern) && cookieDatabase[pattern].category === 'functional') {
-                isEssential = true;
-                break;
-            }
-        }
-        
-        if (!isEssential && name && name !== 'cookie_consent') {
-            // Clear the cookie
-            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
-        }
-    });
-}
-
-function saveCustomSettings() {
-    const consentData = {
-        status: 'custom',
-        gcs: 'G101',
-        categories: {
-            functional: true,  // Essential cookies always enabled
-            analytics: document.querySelector('input[data-category="analytics"]').checked,
-            performance: document.querySelector('input[data-category="performance"]').checked,
-            advertising: document.querySelector('input[data-category="advertising"]').checked,
-            uncategorized: document.querySelector('input[data-category="uncategorized"]') ? 
-                document.querySelector('input[data-category="uncategorized"]').checked : false
-        },
-        timestamp: new Date().getTime()
-    };
-    
-    setCookie('cookie_consent', JSON.stringify(consentData), 365);
-    updateConsentMode(consentData);
-    loadCookiesAccordingToConsent(consentData);
-    
-    // Clear cookies if categories were disabled
-    if (!consentData.categories.analytics) clearCategoryCookies('analytics');
-    if (!consentData.categories.performance) clearCategoryCookies('performance');
-    if (!consentData.categories.advertising) clearCategoryCookies('advertising');
-    if (!consentData.categories.uncategorized) clearCategoryCookies('uncategorized');
-}
-
-function clearCategoryCookies(category) {
-    const cookies = scanAndCategorizeCookies()[category];
-    cookies.forEach(cookie => {
-        document.cookie = `${cookie.name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
-    });
-}
-
-function loadCookiesAccordingToConsent(consentData) {
-    if (consentData.categories.analytics) {
-        loadAnalyticsCookies();
-    }
-    
-    if (consentData.categories.advertising) {
-        loadAdvertisingCookies();
-    }
-    
-    if (consentData.categories.performance) {
-        loadPerformanceCookies();
-    }
-}
-
-function loadAnalyticsCookies() {
-    console.log('Loading analytics cookies');
-    // Implement your analytics tracking here
-    if (typeof ga === 'undefined' && typeof gtag === 'function') {
-        gtag('js', new Date());
-        gtag('config', 'YOUR_GA4_MEASUREMENT_ID');
-    }
-}
-
-function loadAdvertisingCookies() {
-    console.log('Loading advertising cookies');
-    // Implement your advertising tracking here
-    if (typeof fbq === 'undefined') {
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', 'YOUR_PIXEL_ID');
-        fbq('track', 'PageView');
-    }
-}
-
-function loadPerformanceCookies() {
-    console.log('Loading performance cookies');
-    // Implement performance tracking here
-}
-
-function setCookie(name, value, days) {
-    let expires = "";
-    if (days) {
-        const date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax; Secure";
 }
 
 function getCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-// Location detection script integration
-(function() {
-    var apiKey = '4c1e5d00e0ac93'; // Your API key from ipinfo.io
+function setCookie(name, value, days = 365) {
+    const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `${name}=${JSON.stringify(value)}; expires=${expires}; path=/; secure; samesite=Lax`;
+}
 
-    fetch('https://ipinfo.io/json?token=' + apiKey)
-        .then(function(response) {
-            // Check if the response is successful
-            if (!response.ok) {
-                throw new Error('Failed to fetch location data from ipinfo.io');
-            }
-            return response.json();
-        })
-        .then(function(payload) {
-            // Use fallback values if properties do not exist
-            var country = (payload && payload.country) ? payload.country : "Unknown";
-            var city = (payload && payload.city) ? payload.city : "Unknown";
-            var zip = (payload && payload.postal) ? payload.postal : "Unknown"; // ZIP code
-            var ip = (payload && payload.ip) ? payload.ip : "Unknown"; // IP address
-            var street = (payload && payload.loc) ? payload.loc : "Unknown"; // Street location (latitude, longitude)
-            var region = (payload && payload.region) ? payload.region : "Unknown"; // Region/State
-            var timezone = (payload && payload.timezone) ? payload.timezone : "Unknown"; // Time zone
-            var isp = (payload && payload.org) ? payload.org : "Unknown"; // ISP/Organization
-            var language = (navigator.language || "Unknown").split("-")[0]; // Language of the user (fallback to browser language)
+function updateConsent(consent) {
+    setCookie('cookie_consent', consent);
+    gtag('consent', 'update', {
+        'ad_storage': consent.advertising ? 'granted' : 'denied',
+        'analytics_storage': consent.analytics ? 'granted' : 'denied',
+        'ad_user_data': consent.advertising ? 'granted' : 'denied',
+        'ad_personalization': consent.advertising ? 'granted' : 'denied',
+        'personalization_storage': consent.performance ? 'granted' : 'denied', // Assuming performance might relate to personalization
+        'functionality_storage': consent.functional ? 'granted' : 'denied',
+        'security_storage': 'granted'
+    });
 
-            // Determine continent based on the country
-            var continent = getContinentFromCountry(country);
+    // Implement logic to enable/disable scripts based on consent
+    Object.keys(consent).forEach(category => {
+        const granted = consent[category];
+        switch (category) {
+            case 'analytics':
+                // Enable or disable Google Analytics, etc.
+                if (granted) {
+                    // Example: Load Google Analytics script
+                    // (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    // (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                    // m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                    // })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+                    // ga('create', 'YOUR_GA_TRACKING_ID', 'auto');
+                    // ga('send', 'pageview');
+                    console.log('Analytics cookies enabled');
+                } else {
+                    // Example: Disable Google Analytics tracking
+                    // window['ga-disable-YOUR_GA_TRACKING_ID'] = true;
+                    console.log('Analytics cookies disabled');
+                }
+                break;
+            case 'advertising':
+                // Enable or disable Facebook Pixel, Google Ads tracking, etc.
+                if (granted) {
+                    console.log('Advertising cookies enabled');
+                } else {
+                    console.log('Advertising cookies disabled');
+                }
+                break;
+            case 'performance':
+                // Enable or disable performance monitoring scripts
+                if (granted) {
+                    console.log('Performance cookies enabled');
+                } else {
+                    console.log('Performance cookies disabled');
+                }
+                break;
+            // Add cases for other cookie categories as needed
+        }
+    });
+}
 
-            // Push data to the dataLayer for Google Tag Manager
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({
-                'event': 'locationRetrieved',
-                'continent': continent,
-                'country': country,
-                'city': city,
-                'zip': zip,
-                'ip': ip,
-                'street': street,
-                'region': region,
-                'timezone': timezone,
-                'isp': isp,
-                'language': language
-            });
+function showFloatingButton() {
+    const floatingButton = document.getElementById('cookieFloatingButton');
+    if (floatingButton) {
+        floatingButton.classList.add('show');
+    }
+}
 
-            console.log('Location Data Sent to dataLayer:', continent, country, city, zip, ip, street, region, timezone, isp, language);
-        })
-        .catch(function(error) {
-            console.error('Error fetching location:', error);
-            // Push error details to dataLayer if needed
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({
-                'event': 'locationError',
-                'error': error.message
+function hideFloatingButton() {
+    const floatingButton = document.getElementById('cookieFloatingButton');
+    if (floatingButton) {
+        floatingButton.classList.remove('show');
+    }
+}
+
+function updateCookieTables(newCookies) {
+    const modalBody = document.querySelector('#cookieSettingsModal .cookie-settings-body');
+    if (modalBody) {
+        modalBody.innerHTML = `
+            ${generateCategorySectionHTML('functional', newCookies)}
+            ${generateCategorySectionHTML('analytics', newCookies)}
+            ${generateCategorySectionHTML('performance', newCookies)}
+            ${generateCategorySectionHTML('advertising', newCookies)}
+            ${newCookies.uncategorized.length > 0 ? generateCategorySectionHTML('uncategorized', newCookies) : ''}
+        `;
+        // Re-initialize event listeners for the new cookie details toggles
+        const cookieDetailsToggles = modalBody.querySelectorAll('.cookie-details-header .toggle-details');
+        cookieDetailsToggles.forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const content = this.closest('.cookie-details-container').querySelector('.cookie-details-content');
+                const isVisible = content.style.display === 'block';
+                content.style.display = isVisible ? 'none' : 'block';
+                this.textContent = isVisible ? '+' : '-';
             });
         });
-
-    // Function to map countries to their respective continents
-    function getContinentFromCountry(countryCode) {
-        var continentMap = {
-            "AF": "Africa", "AL": "Europe", "DZ": "Africa", "AS": "Oceania", "AD": "Europe", "AO": "Africa",
-            "AR": "South America", "AM": "Asia", "AU": "Oceania", "AT": "Europe", "AZ": "Asia", "BS": "North America",
-            "BH": "Asia", "BD": "Asia", "BB": "North America", "BY": "Europe", "BE": "Europe", "BZ": "North America",
-            "BJ": "Africa", "BT": "Asia", "BO": "South America", "BA": "Europe", "BW": "Africa", "BR": "South America",
-            "BN": "Asia", "BG": "Europe", "BF": "Africa", "BI": "Africa", "BJ": "Africa", "BD": "Asia",
-            "NL": "Europe", "US": "North America", "CA": "North America", "GB": "Europe", "CN": "Asia", "IN": "Asia",
-            "ZA": "Africa", "AU": "Oceania", "NZ": "Oceania", "DE": "Europe", "FR": "Europe", "IT": "Europe",
-            "ES": "Europe", "PL": "Europe", "SE": "Europe", "NO": "Europe", "DK": "Europe", "RU": "Europe",
-            "BR": "South America", "MX": "North America", "JP": "Asia", "KR": "Asia", "AE": "Asia", "SG": "Asia",
-            "TH": "Asia", "ID": "Asia", "PH": "Asia", "MY": "Asia", "KH": "Asia", "VN": "Asia", "PK": "Asia",
-            "EG": "Africa", "KE": "Africa", "NG": "Africa", "ET": "Africa", "TZ": "Africa", "UG": "Africa",
-            "GH": "Africa", "MA": "Africa", "MO": "Asia", "LK": "Asia", "BD": "Asia", "IQ": "Asia",
-            "CO": "South America", "CL": "South America", "PE": "South America", "VE": "South America",
-            "BO": "South America", "PY": "South America", "SR": "South America", "EC": "South America",
-            "GT": "North America", "HT": "North America", "DO": "North America", "CR": "North America",
-            "CU": "North America", "JM": "North America", "BS": "North America", "NI": "North America",
-            "BZ": "North America", "PA": "North America", "SV": "North America", "GT": "North America",
-            "RU": "Europe", "BG": "Europe", "RO": "Europe", "UA": "Europe", "CZ": "Europe", "HU": "Europe",
-            "SK": "Europe", "HR": "Europe", "SI": "Europe", "MK": "Europe", "RS": "Europe", "ME": "Europe",
-            "AL": "Europe", "AM": "Asia", "AZ": "Asia", "GE": "Asia", "MN": "Asia", "NP": "Asia", "BT": "Asia",
-            "KG": "Asia", "TJ": "Asia", "UZ": "Asia", "KZ": "Asia", "TM": "Asia"
-        };
-
-        return continentMap[countryCode] || "Unknown";
+        // You might also need to update the state of the checkboxes based on current consent
+        const currentConsent = getCookie('cookie_consent');
+        if (currentConsent) {
+            const parsedConsent = JSON.parse(currentConsent);
+            modalBody.querySelectorAll('.cookie-category input[type="checkbox"]').forEach(toggle => {
+                const category = toggle.dataset.category;
+                if (parsedConsent.hasOwnProperty(category)) {
+                    toggle.checked = parsedConsent[category];
+                }
+            });
+        }
     }
-})();
+}
+
+function generateCategorySectionHTML(category, detectedCookies) {
+    const lang = translations[document.documentElement.lang] || translations.en;
+    const cookies = detectedCookies[category];
+    const categoryKey = category === 'functional' ? 'essential' : category;
+    const isEssential = category === 'functional';
+
+    return `
+    <div class="cookie-category">
+        <div class="toggle-container">
+            <h3>${lang[categoryKey]}</h3>
+            <label class="toggle-switch">
+                <input type="checkbox" data-category="${category}" ${isEssential ? 'checked disabled' : ''}>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <p>${lang[`${categoryKey}Desc`]}</p>
+        <div class="cookie-details-container">
+            <div class="cookie-details-header">
+                <span>Cookie Details</span>
+                <span class="toggle-details">+</span>
+            </div>
+            <div class="cookie-details-content" style="display: none;">
+                ${cookies.length > 0 ?
+                    generateCookieTable(cookies) :
+                    `<p class="no-cookies-message">No cookies in this category detected.</p>`}
+            </div>
+        </div>
+    </div>`;
+}
+}
+}
+
+function generateCategorySectionHTML(category, detectedCookies) {
+    const lang = translations[document.documentElement.lang] || translations.en;
+    const cookies = detectedCookies[category];
+    const categoryKey = category === 'functional' ? 'essential' : category;
+    const isEssential = category === 'functional';
+
+    return `
+    <div class="cookie-category">
+        <div class="toggle-container">
+            <h3>${lang[categoryKey]}</h3>
+            <label class="toggle-switch">
+                <input type="checkbox" data-category="${category}" ${isEssential ? 'checked disabled' : ''}>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <p>${lang[`${categoryKey}Desc`]}</p>
+        <div class="cookie-details-container">
+            <div class="cookie-details-header">
+                <span>Cookie Details</span>
+                <span class="toggle-details">+</span>
+            </div>
+            <div class="cookie-details-content" style="display: none;">
+                ${cookies.length > 0 ?
+                    generateCookieTable(cookies) :
+                    `<p class="no-cookies-message">No cookies in this category detected.</p>`}
+            </div>
+        </div>
+    </div>`;
+}
