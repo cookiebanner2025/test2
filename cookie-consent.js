@@ -58,7 +58,7 @@ const cookieDatabase = {
 const translations = {
     en: {
         title: "We value your privacy",
-        description: "We use cookies to enhance your browsing experience. Choose which cookies you allow.",
+        description: "We use cookies to improve your browsing experience, provide personalized ads or content, and analyze our traffic. By clicking "Accept All," you consent to the use of cookies.",
         privacy: "Privacy Policy",
         customize: "Customize",
         reject: "Reject All",
