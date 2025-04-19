@@ -1,4 +1,4 @@
-<script>
+
 /**
  * Ultimate GDPR Cookie Consent Solution v2.2
  * - Compact floating button view
@@ -932,4 +932,4 @@ function getCookie(name) {
     }
     return null;
 }
-</script>
+
