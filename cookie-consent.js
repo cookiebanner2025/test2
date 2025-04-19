@@ -477,9 +477,10 @@ function injectConsentHTML(detectedCookies, language = 'en') {
                 <a href="/privacy-policy/" class="privacy-policy-link">${lang.privacy}</a>
             </div>
             <div class="cookie-consent-buttons">
+              <button id="acceptAllBtn" class="cookie-btn accept-btn">${lang.accept}</button>
                 <button id="adjustConsentBtn" class="cookie-btn adjust-btn">${lang.customize}</button>
                 <button id="rejectAllBtn" class="cookie-btn reject-btn">${lang.reject}</button>
-                <button id="acceptAllBtn" class="cookie-btn accept-btn">${lang.accept}</button>
+              
             </div>
         </div>
     </div>
