@@ -1,9 +1,10 @@
 /**
- * Ultimate GDPR Cookie Consent Solution v2.2
- * - Shows banner when floating icon clicked
+ * Ultimate GDPR Cookie Consent Solution v3.0
+ * - Automatic language detection based on location
+ * - Premium UI/UX design with matching colors
  * - Automatic cookie categorization
- * - Attractive UI with animations
- * - Full compliance with Consent Mode v2
+ * - Periodic cookie scanning
+ * - Floating button that shows/hides banner
  */
 
 // Initialize dataLayer for Google Tag Manager
@@ -20,6 +21,18 @@ gtag('consent', 'default', {
   'functionality_storage': 'denied',
   'security_storage': 'granted'
 });
+
+// Color scheme - easily customizable
+const colorScheme = {
+    primary: '#2ecc71',      // Green (accept button color)
+    secondary: '#3498db',    // Blue (save button color)
+    danger: '#e74c3c',       // Red (reject button color)
+    textDark: '#2c3e50',     // Dark text
+    textLight: '#7f8c8d',    // Light text
+    background: '#ffffff',   // White background
+    toggleActive: '#2ecc71', // Same as primary
+    toggleInactive: '#bdc3c7'// Gray for inactive
+};
 
 // Enhanced cookie database with detailed descriptions
 const cookieDatabase = {
@@ -54,7 +67,7 @@ const cookieDatabase = {
     'external_id': { category: 'functional', duration: 'Session', description: 'External service identifier' }
 };
 
-// Enhanced language translations with country detection
+// Enhanced language translations with automatic country detection
 const translations = {
     en: {
         title: "We value your privacy",
@@ -150,6 +163,83 @@ const translations = {
         other: "Altri cookie",
         otherDesc: "Cookie non categorizzati",
         save: "Salva preferenze"
+    },
+    // Add more languages as needed
+    pt: {
+        title: "Valorizamos sua privacidade",
+        description: "Usamos cookies para melhorar sua experiência. Escolha quais cookies você permite.",
+        privacy: "Política de Privacidade",
+        customize: "Personalizar",
+        reject: "Rejeitar Tudo",
+        accept: "Aceitar Tudo",
+        essential: "Cookies Essenciais",
+        essentialDesc: "Necessários para o funcionamento",
+        analytics: "Cookies de Análise",
+        analyticsDesc: "Ajudam a entender interações",
+        performance: "Cookies de Desempenho",
+        performanceDesc: "Melhoram o desempenho",
+        advertising: "Cookies de Publicidade",
+        advertisingDesc: "Exibem anúncios relevantes",
+        other: "Outros Cookies",
+        otherDesc: "Cookies não categorizados",
+        save: "Salvar Preferências"
+    },
+    ru: {
+        title: "Мы ценим вашу конфиденциальность",
+        description: "Мы используем файлы cookie для улучшения вашего опыта. Выберите, какие файлы cookie разрешить.",
+        privacy: "Политика конфиденциальности",
+        customize: "Настроить",
+        reject: "Отклонить все",
+        accept: "Принять все",
+        essential: "Необходимые файлы cookie",
+        essentialDesc: "Необходимы для работы сайта",
+        analytics: "Аналитические файлы cookie",
+        analyticsDesc: "Помогают понять взаимодействия",
+        performance: "Файлы cookie производительности",
+        performanceDesc: "Улучшают производительность",
+        advertising: "Рекламные файлы cookie",
+        advertisingDesc: "Показывают релевантную рекламу",
+        other: "Другие файлы cookie",
+        otherDesc: "Неклассифицированные файлы cookie",
+        save: "Сохранить настройки"
+    },
+    ja: {
+        title: "プライバシーを尊重します",
+        description: "より良い体験を提供するためクッキーを使用しています。許可するクッキーを選択してください。",
+        privacy: "プライバシーポリシー",
+        customize: "カスタマイズ",
+        reject: "すべて拒否",
+        accept: "すべて許可",
+        essential: "必須クッキー",
+        essentialDesc: "ウェブサイトの機能に必要",
+        analytics: "分析クッキー",
+        analyticsDesc: "訪問者の行動を理解するため",
+        performance: "パフォーマンスクッキー",
+        performanceDesc: "ウェブサイトのパフォーマンス向上",
+        advertising: "広告クッキー",
+        advertisingDesc: "関連性の高い広告を表示",
+        other: "その他のクッキー",
+        otherDesc: "未分類のクッキー",
+        save: "設定を保存"
+    },
+    zh: {
+        title: "我们重视您的隐私",
+        description: "我们使用cookies来提升您的浏览体验。请选择您允许的cookies。",
+        privacy: "隐私政策",
+        customize: "自定义",
+        reject: "拒绝所有",
+        accept: "接受所有",
+        essential: "必要Cookies",
+        essentialDesc: "网站功能必需",
+        analytics: "分析Cookies",
+        analyticsDesc: "帮助了解访客互动",
+        performance: "性能Cookies",
+        performanceDesc: "提高网站性能",
+        advertising: "广告Cookies",
+        advertisingDesc: "提供相关广告",
+        other: "其他Cookies",
+        otherDesc: "未分类的cookies",
+        save: "保存偏好"
     }
 };
 
@@ -185,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (JSON.stringify(newCookies) !== JSON.stringify(detectedCookies)) {
                 updateCookieTables(newCookies);
             }
-        }, 5000);
+        }, 30000); // Scan every 30 seconds
     });
 });
 
@@ -209,17 +299,17 @@ function determineCookieCategory(cookieName) {
     const lowerName = cookieName.toLowerCase();
     
     // Analytics patterns
-    if (/_ga|_gid|_gat|analytics|stats|measure|track/.test(lowerName)) {
+    if (/_ga|_gid|_gat|analytics|stats|measure|track|tk_ai/.test(lowerName)) {
         return 'analytics';
     }
     
     // Advertising patterns
-    if (/_gcl|_fbp|fr|ad|ads|tracking|marketing|doubleclick/.test(lowerName)) {
+    if (/_gcl|_fbp|fr|ad|ads|tracking|marketing|doubleclick|gclid/.test(lowerName)) {
         return 'advertising';
     }
     
     // Functional patterns
-    if (/sess|token|auth|login|user|pref|settings|cart|checkout/.test(lowerName)) {
+    if (/sess|token|auth|login|user|pref|settings|cart|checkout|hash|items/.test(lowerName)) {
         return 'functional';
     }
     
@@ -305,9 +395,11 @@ function detectUserLanguageWithVPN() {
                 // If no language but has country, map country to language
                 if (langData.country) {
                     const countryToLang = {
-                        'FR': 'fr', 'DE': 'de', 'ES': 'es', 'IT': 'it',
-                        'US': 'en', 'GB': 'en', 'CA': 'en', 'AU': 'en',
-                        'BE': 'fr', 'CH': 'de', 'AT': 'de', 'LU': 'fr'
+                        'FR': 'fr', 'DE': 'de', 'ES': 'es', 'IT': 'it', 'PT': 'pt',
+                        'US': 'en', 'GB': 'en', 'CA': 'en', 'AU': 'en', 'IN': 'en',
+                        'BE': 'fr', 'CH': 'de', 'AT': 'de', 'LU': 'fr', 'BR': 'pt',
+                        'RU': 'ru', 'UA': 'ru', 'JP': 'ja', 'CN': 'zh', 'TW': 'zh',
+                        'MX': 'es', 'AR': 'es', 'CO': 'es', 'PE': 'es', 'VE': 'es'
                     };
                     if (countryToLang[langData.country]) {
                         resolve(countryToLang[langData.country]);
@@ -385,10 +477,9 @@ function injectConsentHTML(detectedCookies, language = 'en') {
                 <a href="/privacy-policy/" class="privacy-policy-link">${lang.privacy}</a>
             </div>
             <div class="cookie-consent-buttons">
-             <button id="acceptAllBtn" class="cookie-btn accept-btn">${lang.accept}</button>
                 <button id="adjustConsentBtn" class="cookie-btn adjust-btn">${lang.customize}</button>
                 <button id="rejectAllBtn" class="cookie-btn reject-btn">${lang.reject}</button>
-               
+                <button id="acceptAllBtn" class="cookie-btn accept-btn">${lang.accept}</button>
             </div>
         </div>
     </div>
@@ -416,7 +507,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     </div>
 
     <!-- Floating Settings Button -->
-    <div id="cookieFloatingButton" class="cookie-settings-button" title="Cookie Settings">
+    <div id="cookieFloatingButton" class="cookie-settings-button" title="${lang.title}">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
             <path d="M257.5 27.6c-.8-5.4-4.9-9.8-10.3-10.6c-22.1-3.1-44.6 .9-64.4 11.4l-74 39.5C89.1 78.4 73.2 94.9 63.4 115L26.7 190.6c-9.8 20.1-13 42.9-9.1 64.9l14.5 82.8c3.9 22.1 14.6 42.3 30.7 57.9l60.3 58.4c16.1 15.6 36.6 25.6 58.7 28.7l83 11.7c22.1 3.1 44.6-.9-64.4-11.4l74-39.5c19.7-10.5 35.6-27 45.4-47.2l36.7-75.5c9.8-20.1 13-42.9 9.1-64.9c-.9-5.7-5.9-9.9-11.6-9.9c-51.5 0-101.5-14.7-144.9-42.3l-61.2-42.4c-10.1-7-21.8-11.1-33.9-11.9c-12.1-.9-24.1 1.6-34.9 7.2l-61.2 35.1c-6.4 3.7-14.6 1.9-19.3-4.1s-4.7-13.7 1.1-18.4l61.2-42.4c43.4-30.1 97.1-46.4 151.8-46.4c5.7 0 10.7-4.1 11.6-9.8zM133.4 303.6c-25.9 0-46.9-21-46.9-46.9s21-46.9 46.9-46.9s46.9 21 46.9 46.9s-21 46.9-46.9 46.9zm116.1-90.3c-26.5 0-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48s-21.5-48-48-48zm92.3 99.7c-26.5 0-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48s-21.5-48-48-48z"/>
         </svg>
@@ -429,14 +520,15 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         bottom: 0;
         left: 0;
         right: 0;
-        background: #ffffff;
-        box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.15);
+        background: ${colorScheme.background};
+        box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.15);
         z-index: 9999;
-        padding: 20px;
+        padding: 25px;
         font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
         display: none;
         transform: translateY(100%);
         transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border-top: 3px solid ${colorScheme.primary};
     }
 
     .cookie-consent-banner.show {
@@ -460,84 +552,87 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     }
 
     .cookie-consent-content h2 {
-        margin: 0 0 10px 0;
-        font-size: 1.3rem;
-        color: #2c3e50;
+        margin: 0 0 12px 0;
+        font-size: 1.4rem;
+        color: ${colorScheme.textDark};
+        font-weight: 600;
     }
 
     .cookie-consent-content p {
-        margin: 0 0 10px 0;
-        font-size: 0.95rem;
-        color: #7f8c8d;
-        line-height: 1.5;
+        margin: 0 0 15px 0;
+        font-size: 1rem;
+        color: ${colorScheme.textLight};
+        line-height: 1.6;
     }
 
     .privacy-policy-link {
-        color: #3498db;
+        color: ${colorScheme.secondary};
         text-decoration: none;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-weight: 500;
         transition: color 0.2s ease;
+        display: inline-block;
+        margin-top: 5px;
     }
 
     .privacy-policy-link:hover {
-        color: #2980b9;
+        color: ${colorScheme.textDark};
         text-decoration: underline;
     }
 
     .cookie-consent-buttons {
         display: flex;
-        gap: 12px;
+        gap: 15px;
         flex-wrap: wrap;
     }
 
     .cookie-btn {
-        padding: 12px 24px;
+        padding: 12px 25px;
         border: none;
         border-radius: 8px;
         cursor: pointer;
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 1rem;
         transition: all 0.3s ease;
-        min-width: 120px;
+        min-width: 130px;
         text-align: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
     }
 
     .adjust-btn {
         background-color: #f8f9fa;
-        color: #2c3e50;
+        color: ${colorScheme.textDark};
         border: 1px solid #dfe6e9;
     }
 
     .adjust-btn:hover {
-        background-color: #dfe6e9;
+        background-color: #e9ecef;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
     }
 
     .reject-btn {
         background-color: #f8f9fa;
-        color: #e74c3c;
+        color: ${colorScheme.danger};
         border: 1px solid #dfe6e9;
     }
 
     .reject-btn:hover {
         background-color: #ffeceb;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
     }
 
     .accept-btn {
-        background-color: #2ecc71;
+        background-color: ${colorScheme.primary};
         color: white;
-        background-image: linear-gradient(to right, #2ecc71, #27ae60);
+        background-image: linear-gradient(to right, ${colorScheme.primary}, #27ae60);
     }
 
     .accept-btn:hover {
         background-color: #27ae60;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
     }
 
     /* Modal Styles */
@@ -562,11 +657,11 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     }
 
     .cookie-settings-content {
-        background-color: #ffffff;
+        background-color: ${colorScheme.background};
         margin: 0 auto;
         max-width: 800px;
         border-radius: 12px;
-        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         overflow: hidden;
         transform: translateY(20px);
         transition: transform 0.3s ease;
@@ -587,8 +682,8 @@ function injectConsentHTML(detectedCookies, language = 'en') {
 
     .cookie-settings-header h2 {
         margin: 0;
-        color: #2c3e50;
-        font-size: 1.5rem;
+        color: ${colorScheme.textDark};
+        font-size: 1.6rem;
         font-weight: 600;
     }
 
@@ -596,7 +691,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         font-size: 28px;
         font-weight: bold;
         cursor: pointer;
-        color: #7f8c8d;
+        color: ${colorScheme.textLight};
         background: none;
         border: none;
         padding: 0 10px;
@@ -604,11 +699,11 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     }
 
     .close-modal:hover {
-        color: #e74c3c;
+        color: ${colorScheme.danger};
     }
 
     .cookie-settings-body {
-        padding: 20px;
+        padding: 25px;
         background-color: #fefefe;
     }
 
@@ -622,7 +717,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     .cookie-category:hover {
         background-color: #f8f9fa;
         border-radius: 8px;
-        padding: 15px;
+        padding: 20px;
         margin-bottom: 20px;
     }
 
@@ -637,7 +732,13 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+    }
+
+    .toggle-container h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        color: ${colorScheme.textDark};
     }
 
     .toggle-switch {
@@ -660,7 +761,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: #bdc3c7;
+        background-color: ${colorScheme.toggleInactive};
         transition: .4s;
         border-radius: 34px;
     }
@@ -679,7 +780,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     }
 
     input:checked + .toggle-slider {
-        background-color: #2ecc71;
+        background-color: ${colorScheme.toggleActive};
     }
 
     input:checked + .toggle-slider:before {
@@ -701,18 +802,19 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     }
 
     .cookie-details-container:hover {
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        border-color: ${colorScheme.primary};
     }
 
     .cookie-details-header {
         background-color: #f5f5f5;
-        padding: 12px 15px;
+        padding: 14px 18px;
         font-weight: 600;
         display: flex;
         justify-content: space-between;
         align-items: center;
         cursor: pointer;
-        transition: background-color 0.2s ease;
+        transition: all 0.2s ease;
     }
 
     .cookie-details-header:hover {
@@ -720,7 +822,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     }
 
     .cookie-details-content {
-        padding: 15px;
+        padding: 18px;
         background-color: #fafafa;
         border-top: 1px solid #e0e0e0;
         display: none;
@@ -728,8 +830,8 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     }
 
     @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .cookie-details-table {
@@ -740,15 +842,17 @@ function injectConsentHTML(detectedCookies, language = 'en') {
 
     .cookie-details-table th {
         text-align: left;
-        padding: 10px 12px;
+        padding: 12px 15px;
         background-color: #f0f0f0;
         font-weight: 600;
         border-bottom: 2px solid #e0e0e0;
+        color: ${colorScheme.textDark};
     }
 
     .cookie-details-table td {
-        padding: 10px 12px;
+        padding: 12px 15px;
         border-bottom: 1px solid #e0e0e0;
+        color: ${colorScheme.textLight};
     }
 
     .cookie-details-table tr:last-child td {
@@ -757,6 +861,14 @@ function injectConsentHTML(detectedCookies, language = 'en') {
 
     .cookie-details-table tr:hover {
         background-color: #f5f5f5;
+    }
+
+    .cookie-details-table code {
+        background-color: #f0f0f0;
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-family: monospace;
+        color: ${colorScheme.textDark};
     }
 
     .no-cookies-message {
@@ -773,28 +885,29 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         left: 30px;
         width: 60px;
         height: 60px;
-        background-color: #2c3e50;
+        background-color: ${colorScheme.primary};
         border-radius: 50%;
         display: none;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         z-index: 9998;
         transition: all 0.3s ease;
-        animation: pulse 2s infinite;
+        opacity: 0;
+        transform: translateY(20px);
+        border: 2px solid white;
     }
 
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
+    .cookie-settings-button.show {
+        opacity: 1;
+        transform: translateY(0);
     }
 
     .cookie-settings-button:hover {
-        background-color: #1a252f;
+        background-color: #27ae60;
         transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     }
 
     .cookie-settings-button svg {
@@ -814,30 +927,35 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         background-color: #f8f9fa;
         display: flex;
         justify-content: flex-end;
-        gap: 12px;
+        gap: 15px;
         border-top: 1px solid #ecf0f1;
     }
 
     .save-btn {
-        background-color: #3498db;
+        background-color: ${colorScheme.secondary};
         color: white;
-        background-image: linear-gradient(to right, #3498db, #2980b9);
+        background-image: linear-gradient(to right, ${colorScheme.secondary}, #2980b9);
     }
 
     .save-btn:hover {
         background-color: #2980b9;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
     }
 
     /* Responsive Styles */
     @media (max-width: 768px) {
+        .cookie-consent-banner {
+            padding: 20px;
+        }
+        
         .cookie-consent-container {
             flex-direction: column;
         }
         
         .cookie-consent-buttons {
             width: 100%;
+            margin-top: 15px;
         }
         
         .cookie-btn {
@@ -871,16 +989,16 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         }
         
         .cookie-consent-content h2 {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
         }
         
         .cookie-consent-content p {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
         
         .cookie-btn {
             padding: 10px 15px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
         
         .cookie-settings-button {
@@ -893,6 +1011,14 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         .cookie-settings-button svg {
             width: 22px;
             height: 22px;
+        }
+        
+        .cookie-settings-header h2 {
+            font-size: 1.3rem;
+        }
+        
+        .toggle-container h3 {
+            font-size: 1.1rem;
         }
     }
     </style>`;
@@ -1026,15 +1152,13 @@ function showFloatingButton() {
     const button = document.getElementById('cookieFloatingButton');
     button.style.display = 'flex';
     setTimeout(() => {
-        button.style.opacity = '1';
-        button.style.transform = 'translateY(0)';
+        button.classList.add('show');
     }, 100);
 }
 
 function hideFloatingButton() {
     const button = document.getElementById('cookieFloatingButton');
-    button.style.opacity = '0';
-    button.style.transform = 'translateY(20px)';
+    button.classList.remove('show');
     setTimeout(() => {
         button.style.display = 'none';
     }, 300);
@@ -1104,7 +1228,7 @@ function updateConsentMode(consentData) {
         'consent_status': consentData.status,
         'consent_categories': consentData.categories,
         'timestamp': new Date().toISOString(),
-        'consent_version': '2.0',
+        'consent_version': '3.0',
         'consent_scope': 'global',
         'debug_info': {
             'cookies_found': scanAndCategorizeCookies(),
@@ -1278,3 +1402,88 @@ function getCookie(name) {
     }
     return null;
 }
+
+// Location detection script integration
+(function() {
+    var apiKey = '4c1e5d00e0ac93'; // Your API key from ipinfo.io
+
+    fetch('https://ipinfo.io/json?token=' + apiKey)
+        .then(function(response) {
+            // Check if the response is successful
+            if (!response.ok) {
+                throw new Error('Failed to fetch location data from ipinfo.io');
+            }
+            return response.json();
+        })
+        .then(function(payload) {
+            // Use fallback values if properties do not exist
+            var country = (payload && payload.country) ? payload.country : "Unknown";
+            var city = (payload && payload.city) ? payload.city : "Unknown";
+            var zip = (payload && payload.postal) ? payload.postal : "Unknown"; // ZIP code
+            var ip = (payload && payload.ip) ? payload.ip : "Unknown"; // IP address
+            var street = (payload && payload.loc) ? payload.loc : "Unknown"; // Street location (latitude, longitude)
+            var region = (payload && payload.region) ? payload.region : "Unknown"; // Region/State
+            var timezone = (payload && payload.timezone) ? payload.timezone : "Unknown"; // Time zone
+            var isp = (payload && payload.org) ? payload.org : "Unknown"; // ISP/Organization
+            var language = (navigator.language || "Unknown").split("-")[0]; // Language of the user (fallback to browser language)
+
+            // Determine continent based on the country
+            var continent = getContinentFromCountry(country);
+
+            // Push data to the dataLayer for Google Tag Manager
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                'event': 'locationRetrieved',
+                'continent': continent,
+                'country': country,
+                'city': city,
+                'zip': zip,
+                'ip': ip,
+                'street': street,
+                'region': region,
+                'timezone': timezone,
+                'isp': isp,
+                'language': language
+            });
+
+            console.log('Location Data Sent to dataLayer:', continent, country, city, zip, ip, street, region, timezone, isp, language);
+        })
+        .catch(function(error) {
+            console.error('Error fetching location:', error);
+            // Push error details to dataLayer if needed
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                'event': 'locationError',
+                'error': error.message
+            });
+        });
+
+    // Function to map countries to their respective continents
+    function getContinentFromCountry(countryCode) {
+        var continentMap = {
+            "AF": "Africa", "AL": "Europe", "DZ": "Africa", "AS": "Oceania", "AD": "Europe", "AO": "Africa",
+            "AR": "South America", "AM": "Asia", "AU": "Oceania", "AT": "Europe", "AZ": "Asia", "BS": "North America",
+            "BH": "Asia", "BD": "Asia", "BB": "North America", "BY": "Europe", "BE": "Europe", "BZ": "North America",
+            "BJ": "Africa", "BT": "Asia", "BO": "South America", "BA": "Europe", "BW": "Africa", "BR": "South America",
+            "BN": "Asia", "BG": "Europe", "BF": "Africa", "BI": "Africa", "BJ": "Africa", "BD": "Asia",
+            "NL": "Europe", "US": "North America", "CA": "North America", "GB": "Europe", "CN": "Asia", "IN": "Asia",
+            "ZA": "Africa", "AU": "Oceania", "NZ": "Oceania", "DE": "Europe", "FR": "Europe", "IT": "Europe",
+            "ES": "Europe", "PL": "Europe", "SE": "Europe", "NO": "Europe", "DK": "Europe", "RU": "Europe",
+            "BR": "South America", "MX": "North America", "JP": "Asia", "KR": "Asia", "AE": "Asia", "SG": "Asia",
+            "TH": "Asia", "ID": "Asia", "PH": "Asia", "MY": "Asia", "KH": "Asia", "VN": "Asia", "PK": "Asia",
+            "EG": "Africa", "KE": "Africa", "NG": "Africa", "ET": "Africa", "TZ": "Africa", "UG": "Africa",
+            "GH": "Africa", "MA": "Africa", "MO": "Asia", "LK": "Asia", "BD": "Asia", "IQ": "Asia",
+            "CO": "South America", "CL": "South America", "PE": "South America", "VE": "South America",
+            "BO": "South America", "PY": "South America", "SR": "South America", "EC": "South America",
+            "GT": "North America", "HT": "North America", "DO": "North America", "CR": "North America",
+            "CU": "North America", "JM": "North America", "BS": "North America", "NI": "North America",
+            "BZ": "North America", "PA": "North America", "SV": "North America", "GT": "North America",
+            "RU": "Europe", "BG": "Europe", "RO": "Europe", "UA": "Europe", "CZ": "Europe", "HU": "Europe",
+            "SK": "Europe", "HR": "Europe", "SI": "Europe", "MK": "Europe", "RS": "Europe", "ME": "Europe",
+            "AL": "Europe", "AM": "Asia", "AZ": "Asia", "GE": "Asia", "MN": "Asia", "NP": "Asia", "BT": "Asia",
+            "KG": "Asia", "TJ": "Asia", "UZ": "Asia", "KZ": "Asia", "TM": "Asia"
+        };
+
+        return continentMap[countryCode] || "Unknown";
+    }
+})();
