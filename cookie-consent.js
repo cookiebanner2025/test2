@@ -64,7 +64,7 @@ const config = {
     allowedDomains: [],
     
     // Privacy policy URL (configurable)
-    privacyPolicyUrl: 'https://yourdomain.com/privacy-policy', // Add your full privacy policy URL here
+    privacyPolicyUrl: 'https://www.alaiapatrimoine.fr/politique-de-confidentialite', // Add your full privacy policy URL here
 
 
    
@@ -136,9 +136,9 @@ const config = {
     
     // Language configuration
     languageConfig: {
-        defaultLanguage: 'en',
+        defaultLanguage: 'fr',
         availableLanguages: [], // Only en and fr as requested
-        showLanguageSelector: true,
+        showLanguageSelector: false,
         autoDetectLanguage: true
     },
     
@@ -811,11 +811,11 @@ const translations = {
     },
     fr: {
         title: "Nous respectons votre vie privée",
-        description: "Nous utilisons des cookies pour améliorer votre expérience, fournir des publicités ou du contenu personnalisé et analyser notre trafic. En cliquant sur \"Tout accepter\", vous consentez à l'utilisation de cookies.",
+        description: "Nous utilisons des cookies pour améliorer votre expérience, fournir des publicités ou du contenu personnalisé et analyser notre trafic. En cliquant sur \"accepter\", vous consentez à l'utilisation de cookies.",
         privacy: "Politique de confidentialité",
         customize: "Personnaliser",
-        reject: "Tout refuser",
-        accept: "Tout accepter",
+        reject: "Refuser",
+        accept: "Accepter",
         essential: "Cookies essentiels",
         essentialDesc: "Nécessaires au fonctionnement",
         analytics: "Cookies d'analyse",
@@ -2509,7 +2509,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         </div>
     </div>
 
- // Floating Settings Button
+// Floating Settings Button
 <div id="cookieFloatingButton" class="cookie-settings-button mobile-only" title="${lang.title}">
     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="none">
         <path d="M6 8H8.01V10H6V8Z" fill="currentColor"/>
@@ -3038,6 +3038,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     .cookie-settings-button.show {
         opacity: 1;
         transform: translateY(0);
+        margin-bottom: 116px;
     }
 
     .cookie-settings-button:hover {
@@ -3453,8 +3454,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
 
 
 
-    
-
+/* Mobile-specific floating button */
 @media (max-width: 767px) {
     #cookieFloatingButton.mobile-only {
         bottom: 20px;
@@ -3463,12 +3463,15 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     }
 }
 
-
+/* Desktop-specific floating button */
 @media (min-width: 768px) {
     #cookieFloatingButton {
         ${config.behavior.floatingButtonPosition === 'left' ? 'left: 30px;' : 'right: 30px;'}
     }
 }
+
+
+
 
 
 
