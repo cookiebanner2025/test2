@@ -66,10 +66,7 @@ const config = {
     // Privacy policy URL (configurable)
     privacyPolicyUrl: 'https://yourdomain.com/privacy-policy', // Add your full privacy policy URL here
 
-floatingButtonPosition: {
-    desktop: 'left',  // 'left' or 'right' for desktop
-    mobile: 'right'   // 'left' or 'right' for mobile
-},
+
    
     // Query Parameter Storage Configuration
     queryParamsConfig: {
@@ -102,7 +99,7 @@ floatingButtonPosition: {
         acceptOnContinue: false,
         showFloatingButton: true,
         showAdminButton: false,
-      //  floatingButtonPosition: 'left',
+        floatingButtonPosition: 'left',
         adminButtonPosition: 'left',
         bannerPosition: 'left',
         bannerAnimation: {
@@ -2512,16 +2509,16 @@ function injectConsentHTML(detectedCookies, language = 'en') {
         </div>
     </div>
 
-   <!-- Floating Settings Button -->
-    <div id="cookieFloatingButton" class="cookie-settings-button" title="${lang.title}">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="none">
-            <path d="M6 8H8.01V10H6V8Z" fill="currentColor"/>
-            <path d="M11 11H13.01V13H11V11Z" fill="currentColor"/>
-            <path d="M8 15H10.01V17H8V15Z" fill="currentColor"/>
-            <path d="M15 15H17.01V17H15V15Z" fill="currentColor"/>
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M1 12C1 5.92487 5.92487 1 12 1C12.0366 1 12.0732 1.00018 12.1097 1.00054L13.3208 1.01239L13.08 2.19932C13.0276 2.45721 13 2.72486 13 3C13 4.95769 14.4074 6.58878 16.2659 6.93296L16.9419 7.05815L17.067 7.73414C17.4112 9.59261 19.0423 11 21 11C21.2751 11 21.5428 10.9724 21.8007 10.92L22.9876 10.6792L22.9995 11.8903C22.9998 11.9268 23 11.9634 23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12ZM11.0002 3.0549C6.50018 3.55223 3 7.36736 3 12C3 16.9706 7.02944 21 12 21C16.6326 21 20.4478 17.4998 20.9451 12.9998C18.2609 12.9757 15.9991 11.1899 15.2573 8.74272C12.8101 8.00085 11.0243 5.73912 11.0002 3.0549Z" fill="currentColor"/>
-        </svg>
-    </div>
+ // Floating Settings Button
+<div id="cookieFloatingButton" class="cookie-settings-button mobile-only" title="${lang.title}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="none">
+        <path d="M6 8H8.01V10H6V8Z" fill="currentColor"/>
+        <path d="M11 11H13.01V13H11V11Z" fill="currentColor"/>
+        <path d="M8 15H10.01V17H8V15Z" fill="currentColor"/>
+        <path d="M15 15H17.01V17H15V15Z" fill="currentColor"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M1 12C1 5.92487 5.92487 1 12 1C12.0366 1 12.0732 1.00018 12.1097 1.00054L13.3208 1.01239L13.08 2.19932C13.0276 2.45721 13 2.72486 13 3C13 4.95769 14.4074 6.58878 16.2659 6.93296L16.9419 7.05815L17.067 7.73414C17.4112 9.59261 19.0423 11 21 11C21.2751 11 21.5428 10.9724 21.8007 10.92L22.9876 10.6792L22.9995 11.8903C22.9998 11.9268 23 11.9634 23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12ZM11.0002 3.0549C6.50018 3.55223 3 7.36736 3 12C3 16.9706 7.02944 21 12 21C16.6326 21 20.4478 17.4998 20.9451 12.9998C18.2609 12.9757 15.9991 11.1899 15.2573 8.74272C12.8101 8.00085 11.0243 5.73912 11.0002 3.0549Z" fill="currentColor"/>
+    </svg>
+</div>
     
     ${adminButton}
     
@@ -3018,24 +3015,25 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     }
 
     /* Floating Settings Button */
- .cookie-settings-button {
-    position: fixed;
-    bottom: 30px;
-    width: ${config.floatingButtonStyle.size};
-    height: ${config.floatingButtonStyle.size};
-    background-color: ${config.floatingButtonStyle.background};
-    border-radius: ${config.floatingButtonStyle.borderRadius};
-    display: none;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: ${config.floatingButtonStyle.boxShadow};
-    z-index: 9998;
-    transition: all 0.3s ease;
-    opacity: 0;
-    transform: translateY(20px);
-    border: ${config.floatingButtonStyle.border};
-}
+    .cookie-settings-button {
+        position: fixed;
+        bottom: 30px;
+        ${config.behavior.floatingButtonPosition === 'left' ? 'left: 30px;' : 'right: 30px;'}
+        width: ${config.floatingButtonStyle.size};
+        height: ${config.floatingButtonStyle.size};
+        background-color: ${config.floatingButtonStyle.background};
+        border-radius: ${config.floatingButtonStyle.borderRadius};
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: ${config.floatingButtonStyle.boxShadow};
+        z-index: 9998;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+        border: ${config.floatingButtonStyle.border};
+    }
 
     .cookie-settings-button.show {
         opacity: 1;
@@ -3381,30 +3379,6 @@ function injectConsentHTML(detectedCookies, language = 'en') {
             grid-template-columns: repeat(2, 1fr);
         }
     }
-
-/* floating icon setup*/
-
-/* Desktop position */
-@media (min-width: 769px) {
-    .cookie-settings-button {
-        ${config.behavior.floatingButtonPosition.desktop === 'left' ? 'left: 30px;' : 'right: 30px;'}
-    }
-}
-
-
-    /* Mobile position */
-@media (max-width: 768px) {
-    .cookie-settings-button {
-        ${config.behavior.floatingButtonPosition.mobile === 'left' ? 'left: 15px;' : 'right: 15px;'}
-        bottom: 15px;
-        width: 50px;
-        height: 50px;
-    }
-}
-
-
-
-
 @media (min-width: 768px) {
     .all-cookie-consent-buttons {
         flex-direction: row;
@@ -3475,6 +3449,29 @@ function injectConsentHTML(detectedCookies, language = 'en') {
             min-width: 120px;
         }
     }
+
+
+
+
+    
+
+@media (max-width: 767px) {
+    #cookieFloatingButton.mobile-only {
+        bottom: 20px;
+        right: 20px;
+        left: auto;
+    }
+}
+
+
+@media (min-width: 768px) {
+    #cookieFloatingButton {
+        ${config.behavior.floatingButtonPosition === 'left' ? 'left: 30px;' : 'right: 30px;'}
+    }
+}
+
+
+
 
     @media (max-width: 480px) {
         .cookie-consent-banner {
