@@ -3457,16 +3457,16 @@ function injectConsentHTML(detectedCookies, language = 'en') {
 /* Mobile-specific floating button */
 @media (max-width: 767px) {
     #cookieFloatingButton.mobile-only {
-        bottom: -20px;
+        bottom: -34px;
         right: 20px;
-        left: auto;
+        /*  left: auto; */
     }
 }
 
 /* Desktop-specific floating button */
 @media (min-width: 768px) {
     #cookieFloatingButton {
-        ${config.behavior.floatingButtonPosition === 'left' ? 'left: 30px;' : 'right: 30px;'}
+        ${config.behavior.floatingButtonPosition === 'left' ? 'left: 66px;' : 'right: 30px;'}
     }
 }
 
