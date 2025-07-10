@@ -3018,7 +3018,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     .cookie-settings-button {
         position: fixed;
         bottom: 30px;
-        ${config.behavior.floatingButtonPosition === 'left' ? 'left: 30px;' : 'right: 30px;'}
+        ${config.behavior.floatingButtonPosition === 'left' ? 'left: 63px;' : 'right: 30px;'}
         width: ${config.floatingButtonStyle.size};
         height: ${config.floatingButtonStyle.size};
         background-color: ${config.floatingButtonStyle.background};
@@ -3459,7 +3459,7 @@ function injectConsentHTML(detectedCookies, language = 'en') {
     #cookieFloatingButton.mobile-only {
         bottom: -20px;
         right: 20px;
-      
+        left: auto;
     }
 }
 
